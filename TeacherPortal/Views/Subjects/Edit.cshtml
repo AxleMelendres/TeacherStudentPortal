@@ -1,0 +1,47 @@
+@model TeacherPortal.Models.ViewModels.SubjectFormViewModel
+@{ ViewData["Title"] = "Edit Subject"; }
+<div class="section-head"><h2>Edit Subject</h2></div>
+@if (ViewBag.ScheduleError != null)
+{
+  <div class="schedule-alert-overlay" data-schedule-alert>
+    <div class="schedule-alert">
+      <div class="schedule-alert-icon">!</div>
+      <h3>Schedule conflict</h3>
+      <p>@ViewBag.ScheduleError</p>
+      <button class="btn btn-primary" type="button" data-schedule-alert-close>OK</button>
+    </div>
+  </div>
+}
+<div class="form-card">
+<form asp-action="Edit" method="post">
+<input type="hidden" asp-for="SubjectId"/>
+<div asp-validation-summary="ModelOnly"></div>
+<div class="form-row"><label>Subject Code</label><input asp-for="SubjectCode" class="form-control"/><span asp-validation-for="SubjectCode" class="text-danger"></span></div>
+<div class="form-row"><label>Subject Name</label><input asp-for="SubjectName" class="form-control"/><span asp-validation-for="SubjectName" class="text-danger"></span></div>
+
+<div class="form-row">
+  <label>Schedule Days</label>
+  <div class="schedule-form-grid">
+    @for (var i = 0; i < Model.Schedules.Count; i++)
+    {
+      <div class="schedule-form-row">
+        <select asp-for="Schedules[i].Day" class="form-control">
+          <option value="">Select day</option>
+          @foreach (var day in (string[])ViewBag.ScheduleDays) { <option value="@day">@day</option> }
+        </select>
+        <input asp-for="Schedules[i].StartTime" class="form-control" type="time" />
+        <input asp-for="Schedules[i].EndTime" class="form-control" type="time" />
+        <input asp-for="Schedules[i].Room" class="form-control" placeholder="Room" />
+      </div>
+    }
+  </div>
+</div>
+
+<div class="form-actions"><button class="btn btn-primary">Save</button><a class="btn btn-outline" asp-action="Index">Cancel</a></div>
+</form>
+</div>
+<script>
+document.querySelector("[data-schedule-alert-close]")?.addEventListener("click", function () {
+  document.querySelector("[data-schedule-alert]")?.remove();
+});
+</script>

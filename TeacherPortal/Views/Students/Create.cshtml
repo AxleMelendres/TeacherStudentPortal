@@ -1,0 +1,96 @@
+@model TeacherPortal.Models.ViewModels.CreateStudentViewModel
+@{
+    ViewData["Title"] = "Add Student";
+    var subjects = (List<TeacherPortal.Models.Subject>)ViewBag.Subjects;
+    var selectedSubjectIds = Model.SubjectIds?.ToHashSet() ?? new HashSet<int>();
+}
+
+<div class="section-head">
+  <div>
+    <h2>Add Student</h2>
+    <div class="sub">Create a student profile and assign initial section and subjects.</div>
+  </div>
+</div>
+
+<div class="student-form-layout">
+  <div class="form-card student-form-card">
+    <form asp-action="Create" method="post">
+      <div asp-validation-summary="ModelOnly"></div>
+
+      <div class="student-form-section">
+        <h3>Student Information</h3>
+        <div class="profile-form-grid">
+          <div class="form-row">
+            <label asp-for="StudentNumber">Student Number</label>
+            <input asp-for="StudentNumber" class="form-control" placeholder="e.g. 2026-0001" />
+            <span asp-validation-for="StudentNumber" class="text-danger"></span>
+          </div>
+          <div class="form-row">
+            <label asp-for="FullName">Full Name</label>
+            <input asp-for="FullName" class="form-control" placeholder="Student full name" />
+            <span asp-validation-for="FullName" class="text-danger"></span>
+          </div>
+          <div class="form-row">
+            <label asp-for="Email"></label>
+            <input asp-for="Email" class="form-control" placeholder="student@example.com" />
+            <span asp-validation-for="Email" class="text-danger"></span>
+          </div>
+          <div class="form-row">
+            <label asp-for="ContactNumber">Contact Number</label>
+            <input asp-for="ContactNumber" class="form-control" placeholder="Optional" />
+            <span asp-validation-for="ContactNumber" class="text-danger"></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="student-form-section">
+        <h3>Enrollment</h3>
+        <div class="form-row">
+          <label asp-for="SectionId">Section</label>
+          <select asp-for="SectionId" class="form-control" asp-items="ViewBag.Sections"><option value="">Select section</option></select>
+          <span asp-validation-for="SectionId" class="text-danger"></span>
+        </div>
+        <div class="form-row">
+          <label>Subjects</label>
+          @if (subjects.Any())
+          {
+            <div class="student-subject-picker">
+              @foreach (var subject in subjects)
+              {
+                <label>
+                  <input type="checkbox" name="SubjectIds" value="@subject.SubjectId" checked="@selectedSubjectIds.Contains(subject.SubjectId)" />
+                  <span>
+                    <strong>@subject.SubjectCode</strong>
+                    @subject.SubjectName
+                  </span>
+                </label>
+              }
+            </div>
+          }
+          else
+          {
+            <div class="empty compact-empty">No subjects available yet.</div>
+          }
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn btn-primary">Create Student</button>
+        <a class="btn btn-outline" asp-action="Index">Cancel</a>
+      </div>
+    </form>
+  </div>
+
+  <aside class="student-help-card">
+    <h3>Account Setup</h3>
+    <p>A student login account is created automatically after saving.</p>
+    <div class="student-help-row">
+      <span>Default password</span>
+      <strong>Student@123</strong>
+    </div>
+    <div class="student-help-row">
+      <span>Account role</span>
+      <strong>Student</strong>
+    </div>
+  </aside>
+</div>

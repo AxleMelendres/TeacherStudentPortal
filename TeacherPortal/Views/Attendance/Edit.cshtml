@@ -1,0 +1,11 @@
+@model TeacherPortal.Models.Attendance
+@{ ViewData["Title"]="Edit Attendance"; }
+<div class="section-head"><h2>Edit Attendance</h2></div>
+<div class="form-card"><form asp-action="Edit" method="post"><input type="hidden" asp-for="AttendanceId"/>
+<input type="hidden" asp-for="StudentId"/><input type="hidden" asp-for="SubjectId"/><input type="hidden" asp-for="SectionId"/>
+<div class="form-row"><label>Date</label><input type="date" asp-for="AttendanceDate" class="form-control"/></div>
+<div class="form-row"><label>Status</label><select asp-for="Status" class="form-control" asp-items="ViewBag.Statuses"></select></div>
+<div class="form-row"><label>Excuse Letter</label><select asp-for="HasExcuseLetter" class="form-control"><option value="false">No letter</option><option value="true">With letter</option></select></div>
+<div class="form-row"><label>Remarks</label><textarea asp-for="Remarks" class="form-control" rows="2"></textarea></div>
+<div class="form-actions"><button class="btn btn-primary">Save</button><a class="btn btn-outline" asp-action="Index">Cancel</a></div>
+</form></div>

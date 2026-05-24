@@ -1,0 +1,79 @@
+@{
+    ViewData["Title"] = "Dashboard";
+    var student = (TeacherPortal.Models.Student)ViewBag.Student;
+    var subjects = (List<TeacherPortal.Models.StudentSubject>)ViewBag.Subjects;
+    var grades = (List<TeacherPortal.Models.ViewModels.StudentPortalGradeViewModel>)ViewBag.Grades;
+    var average = grades.Any() ? grades.Average(g => g.FinalGrade) : (decimal?)null;
+    int total = (int)ViewBag.AttendanceCount;
+    int present = (int)ViewBag.PresentCount;
+    var attendanceRate = total == 0 ? 0 : (int)Math.Round((double)present * 100 / total);
+}
+
+<section class="student-dashboard-hero">
+  <div>
+    <span>Student Portal</span>
+    <h2>Hello, @student.FullName</h2>
+    <p>Student # @student.StudentNumber - @(student.Section?.SectionName ?? "No section assigned")</p>
+  </div>
+  <div class="student-dashboard-date">@DateTime.Now.ToString("dddd, MMM dd")</div>
+</section>
+
+<div class="cards-3">
+  <div class="stat-card"><div class="ico">S</div><div class="label">Enrolled Subjects</div><div class="value">@subjects.Count</div></div>
+  <div class="stat-card gold"><div class="ico">G</div><div class="label">Current Average</div><div class="value">@(average.HasValue ? average.Value.ToString("0.00") : "-")</div></div>
+  <div class="stat-card dark"><div class="ico">A</div><div class="label">Attendance Rate</div><div class="value">@attendanceRate%</div></div>
+</div>
+
+<div class="grid-2">
+  <div class="panel">
+    <div class="panel-head"><h3>Recent Grades</h3><a class="btn btn-outline btn-sm" asp-action="MyGrades">View all</a></div>
+    <div class="panel-body" style="padding:0;">
+      @if (!grades.Any())
+      {
+        <div class="empty">No grades yet.</div>
+      }
+      else
+      {
+        <table class="table">
+          <thead><tr><th>Subject</th><th>Final</th><th>Remarks</th></tr></thead>
+          <tbody>
+            @foreach (var grade in grades.Take(5))
+            {
+              var cls = grade.Remarks == "Passed" ? "badge-green" : grade.Remarks == "Failed" ? "badge-red" : "badge-yellow";
+              <tr>
+                <td>@grade.SubjectCode - @grade.SubjectName</td>
+                <td><strong>@(grade.FinalGrade?.ToString("0.00") ?? "-")</strong></td>
+                <td><span class="badge @cls">@grade.Remarks</span></td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head"><h3>My Subjects</h3><a class="btn btn-outline btn-sm" asp-action="MySubjects">View all</a></div>
+    <div class="panel-body">
+      @if (!subjects.Any())
+      {
+        <div class="empty compact-empty">No subjects enrolled.</div>
+      }
+      else
+      {
+        <div class="student-subject-list">
+          @foreach (var subjectRow in subjects.Take(5))
+          {
+            <div class="student-subject-item">
+              <div>
+                <strong>@subjectRow.Subject?.SubjectCode</strong>
+                <span>@subjectRow.Subject?.SubjectName</span>
+              </div>
+              <small>@(subjectRow.Section?.SectionName ?? "No section")</small>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </div>
+</div>

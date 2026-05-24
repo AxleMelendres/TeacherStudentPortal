@@ -1,0 +1,6 @@
+@{
+    var ctrl = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+    if (ctrl == "Account") { Layout = null; }
+    else if (ctrl == "StudentDashboard") { Layout = "_StudentLayout"; }
+    else { Layout = "_TeacherLayout"; }
+}

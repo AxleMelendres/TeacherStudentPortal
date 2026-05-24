@@ -1,0 +1,86 @@
+@model SectionDetailsViewModel
+@{ ViewData["Title"] = "Section Details"; }
+
+<div class="section-head">
+  <div>
+    <h2>@Model.SectionName</h2>
+    <div class="sub">@Model.YearLevel section roster and subject enrollment.</div>
+  </div>
+  <div class="form-actions" style="margin-top:0;">
+    <a class="btn btn-outline" asp-action="Index">Back</a>
+    <a class="btn btn-primary" asp-action="Edit" asp-route-id="@Model.SectionId">Edit Section</a>
+  </div>
+</div>
+
+<div class="section-detail-hero">
+  <div>
+    <span>Section</span>
+    <h3>@Model.SectionName</h3>
+    <p>@(string.IsNullOrWhiteSpace(Model.Description) ? "Class section record and enrolled student overview." : Model.Description)</p>
+  </div>
+  <div class="section-detail-stats">
+    <div><strong>@Model.StudentCount</strong><span>Students</span></div>
+    <div><strong>@Model.EnrolledSubjectCount</strong><span>Subjects</span></div>
+  </div>
+</div>
+
+<div class="panel">
+  <div class="panel-head">
+    <h3>Enrolled Students</h3>
+    <span class="profile-panel-note">Students assigned to this section with their enrolled subjects</span>
+  </div>
+  <div class="panel-body" style="padding:0;">
+    @if (!Model.Students.Any())
+    {
+      <div class="empty"><div class="ico">[]</div>No students enrolled in this section yet.</div>
+    }
+    else
+    {
+      <div class="section-roster-wrap">
+        <table class="table section-roster-table">
+          <thead>
+            <tr>
+              <th>Student</th>
+              <th>Contact</th>
+              <th>Enrolled Subjects</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @foreach (var student in Model.Students)
+            {
+              <tr>
+                <td>
+                  <strong>@student.FullName</strong>
+                  <small>@student.StudentNumber</small>
+                </td>
+                <td>
+                  <div>@student.Email</div>
+                  <small>@(student.ContactNumber ?? "No contact number")</small>
+                </td>
+                <td>
+                  @if (student.Subjects.Any())
+                  {
+                    <div class="subject-chip-list">
+                      @foreach (var subject in student.Subjects)
+                      {
+                        <span>@subject</span>
+                      }
+                    </div>
+                  }
+                  else
+                  {
+                    <span class="schedule-empty">No subjects assigned</span>
+                  }
+                </td>
+                <td class="actions">
+                  <a asp-controller="Students" asp-action="Details" asp-route-id="@student.StudentId">View Student</a>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+</div>

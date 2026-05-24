@@ -1,0 +1,100 @@
+@model TeacherPortal.Models.Student
+@{
+    ViewData["Title"] = "Edit Student";
+    var subjects = (List<TeacherPortal.Models.Subject>)ViewBag.Subjects;
+    var selectedSubjectIds = ((List<int>)ViewBag.SelectedSubjectIds).ToHashSet();
+}
+
+<div class="section-head">
+  <div>
+    <h2>Edit Student</h2>
+    <div class="sub">Update student record and section assignment.</div>
+  </div>
+  <a class="btn btn-outline" asp-action="Details" asp-route-id="@Model.StudentId">View Profile</a>
+</div>
+
+<div class="student-form-layout">
+  <div class="form-card student-form-card">
+    <form asp-action="Edit" method="post">
+      <input type="hidden" asp-for="StudentId" />
+      <div asp-validation-summary="ModelOnly"></div>
+
+      <div class="student-form-section">
+        <h3>Student Information</h3>
+        <div class="profile-form-grid">
+          <div class="form-row">
+            <label asp-for="StudentNumber">Student Number</label>
+            <input asp-for="StudentNumber" class="form-control" />
+            <span asp-validation-for="StudentNumber" class="text-danger"></span>
+          </div>
+          <div class="form-row">
+            <label asp-for="FullName">Full Name</label>
+            <input asp-for="FullName" class="form-control" />
+            <span asp-validation-for="FullName" class="text-danger"></span>
+          </div>
+          <div class="form-row">
+            <label asp-for="Email"></label>
+            <input asp-for="Email" class="form-control" />
+            <span asp-validation-for="Email" class="text-danger"></span>
+          </div>
+          <div class="form-row">
+            <label asp-for="ContactNumber">Contact Number</label>
+            <input asp-for="ContactNumber" class="form-control" />
+            <span asp-validation-for="ContactNumber" class="text-danger"></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="student-form-section">
+        <h3>Enrollment</h3>
+        <div class="form-row">
+          <label asp-for="SectionId">Section</label>
+          <select asp-for="SectionId" class="form-control" asp-items="ViewBag.Sections"><option value="">None</option></select>
+          <span asp-validation-for="SectionId" class="text-danger"></span>
+        </div>
+        <div class="form-row">
+          <label>Subjects</label>
+          @if (subjects.Any())
+          {
+            <div class="student-subject-picker">
+              @foreach (var subject in subjects)
+              {
+                <label>
+                  <input type="checkbox" name="subjectIds" value="@subject.SubjectId" checked="@selectedSubjectIds.Contains(subject.SubjectId)" />
+                  <span>
+                    <strong>@subject.SubjectCode</strong>
+                    @subject.SubjectName
+                  </span>
+                </label>
+              }
+            </div>
+          }
+          else
+          {
+            <div class="empty compact-empty">No subjects available yet.</div>
+          }
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn btn-primary">Save Changes</button>
+        <a class="btn btn-outline" asp-action="Index">Cancel</a>
+      </div>
+    </form>
+  </div>
+
+  <aside class="student-profile-card">
+    <div class="student-profile-avatar">@GetInitials(Model.FullName)</div>
+    <h3>@Model.FullName</h3>
+    <p>@Model.StudentNumber</p>
+    <span class="badge badge-blue">Student Record</span>
+  </aside>
+</div>
+
+@functions {
+    private static string GetInitials(string name)
+    {
+        var parts = (name ?? "Student").Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        return string.Join("", parts.Take(2).Select(part => part[0])).ToUpperInvariant();
+    }
+}

@@ -1,0 +1,16 @@
+@model TeacherPortal.Models.Grade
+@{ ViewData["Title"]="Add Grade"; }
+<div class="section-head"><h2>Add Grade</h2></div>
+<div class="form-card"><form asp-action="Create" method="post">
+<div asp-validation-summary="ModelOnly"></div>
+<div class="form-row"><label>Student</label><select asp-for="StudentId" class="form-control" asp-items="ViewBag.Students"></select></div>
+<div class="form-row"><label>Subject</label><select asp-for="SubjectId" class="form-control" asp-items="ViewBag.Subjects"></select></div>
+<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;">
+<div class="form-row"><label>Quiz</label><input asp-for="Quiz" class="form-control" type="number" step="0.01" min="0" max="100"/></div>
+<div class="form-row"><label>Activity</label><input asp-for="Activity" class="form-control" type="number" step="0.01" min="0" max="100"/></div>
+<div class="form-row"><label>Assignment</label><input asp-for="Assignment" class="form-control" type="number" step="0.01" min="0" max="100"/></div>
+<div class="form-row"><label>Midterm</label><input asp-for="MidtermExam" class="form-control" type="number" step="0.01" min="0" max="100"/></div>
+<div class="form-row"><label>Final Exam</label><input asp-for="FinalExam" class="form-control" type="number" step="0.01" min="0" max="100"/></div>
+</div>
+<div class="form-actions"><button class="btn btn-primary">Save</button><a class="btn btn-outline" asp-action="Index">Cancel</a></div>
+</form></div>

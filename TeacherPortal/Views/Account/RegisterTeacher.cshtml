@@ -1,0 +1,30 @@
+@model TeacherPortal.Models.ViewModels.RegisterTeacherViewModel
+@{ ViewData["Title"] = "Register"; Layout = null; }
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Register - CCS Portal</title>
+<link rel="stylesheet" href="~/css/theme.css"/><link rel="stylesheet" href="~/css/site.css"/></head>
+<body><div class="auth-shell">
+  <div class="auth-brand">
+    <div class="logo"><img src="~/images/ccs-logo.png" alt="College of Computer Studies logo"/> CCS Teacher Portal</div>
+    <div><h1>Join the faculty portal</h1><p>Register your teacher account to manage your classes.</p></div>
+    <div style="opacity:.82;font-size:13px;">&copy; @DateTime.Now.Year - College of Computer Studies</div>
+  </div>
+  <div class="auth-form">
+    <div class="auth-card">
+      <h2>Create teacher account</h2>
+      <div class="sub">Your account will be created with the Teacher role.</div>
+      <form asp-action="RegisterTeacher" method="post">
+        <div asp-validation-summary="ModelOnly"></div>
+        <div class="form-row"><label>Full Name</label><input asp-for="FullName" class="form-control"/><span asp-validation-for="FullName" class="text-danger"></span></div>
+        <div class="form-row"><label>Employee Number</label><input asp-for="EmployeeNumber" class="form-control"/><span asp-validation-for="EmployeeNumber" class="text-danger"></span></div>
+        <div class="form-row"><label>Email</label><input asp-for="Email" class="form-control"/><span asp-validation-for="Email" class="text-danger"></span></div>
+        <div class="form-row"><label>Password</label><input asp-for="Password" class="form-control"/><span asp-validation-for="Password" class="text-danger"></span></div>
+        <div class="form-row"><label>Confirm Password</label><input asp-for="ConfirmPassword" class="form-control"/><span asp-validation-for="ConfirmPassword" class="text-danger"></span></div>
+        <button class="btn btn-primary" style="width:100%;" type="submit">Create account</button>
+      </form>
+      <div style="text-align:center;margin-top:16px;font-size:13px;color:var(--color-muted);">
+        Already have an account? <a asp-action="Login">Sign in</a>
+      </div>
+    </div>
+  </div>
+</div></body></html>

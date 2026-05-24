@@ -1,0 +1,30 @@
+@model TeacherPortal.Models.ViewModels.RegisterStudentViewModel
+@{ ViewData["Title"] = "Student Registration"; Layout = null; }
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Student Registration - CCS Portal</title>
+<link rel="stylesheet" href="~/css/theme.css"/><link rel="stylesheet" href="~/css/site.css"/></head>
+<body><div class="auth-shell">
+  <div class="auth-brand">
+    <div class="logo"><img src="~/images/ccs-logo.png" alt="College of Computer Studies logo"/> CCS Student Portal</div>
+    <div><h1>Create your student account</h1><p>Register first, then give your generated Student ID to your teacher for section and subject enrollment.</p></div>
+    <div style="opacity:.82;font-size:13px;">&copy; @DateTime.Now.Year - College of Computer Studies</div>
+  </div>
+  <div class="auth-form">
+    <div class="auth-card">
+      <h2>Student registration</h2>
+      <div class="sub">Your Student ID will be generated after saving.</div>
+      <form asp-action="RegisterStudent" method="post">
+        <div asp-validation-summary="ModelOnly"></div>
+        <div class="form-row"><label>Full Name</label><input asp-for="FullName" class="form-control"/><span asp-validation-for="FullName" class="text-danger"></span></div>
+        <div class="form-row"><label>Email</label><input asp-for="Email" class="form-control"/><span asp-validation-for="Email" class="text-danger"></span></div>
+        <div class="form-row"><label>Contact Number</label><input asp-for="ContactNumber" class="form-control"/><span asp-validation-for="ContactNumber" class="text-danger"></span></div>
+        <div class="form-row"><label>Password</label><input asp-for="Password" class="form-control"/><span asp-validation-for="Password" class="text-danger"></span></div>
+        <div class="form-row"><label>Confirm Password</label><input asp-for="ConfirmPassword" class="form-control"/><span asp-validation-for="ConfirmPassword" class="text-danger"></span></div>
+        <button class="btn btn-primary" style="width:100%;" type="submit">Register student</button>
+      </form>
+      <div style="text-align:center;margin-top:16px;font-size:13px;color:var(--color-muted);">
+        Already registered? <a asp-action="StudentLogin">Sign in</a>
+      </div>
+    </div>
+  </div>
+</div></body></html>

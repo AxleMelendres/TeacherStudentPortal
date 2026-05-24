@@ -1,0 +1,42 @@
+@model TeacherPortal.Models.Student
+@{ ViewData["Title"] = "Profile"; }
+
+<div class="section-head">
+  <div>
+    <h2>My Profile</h2>
+    <div class="sub">Student account and academic enrollment details.</div>
+  </div>
+  <span class="badge badge-blue">Student</span>
+</div>
+
+<div class="student-detail-layout">
+  <aside class="student-profile-card">
+    <div class="student-profile-avatar">@GetInitials(Model.FullName)</div>
+    <h3>@Model.FullName</h3>
+    <p>@Model.StudentNumber</p>
+    <span class="badge @(Model.Section == null ? "badge-gray" : "badge-blue")">@(Model.Section?.SectionName ?? "Unassigned")</span>
+  </aside>
+
+  <section class="student-detail-main">
+    <div class="panel">
+      <div class="panel-head"><h3>Account Information</h3></div>
+      <div class="panel-body student-detail-grid">
+        <div><span>Student Number</span><strong>@Model.StudentNumber</strong></div>
+        <div><span>Enrollment Code</span><strong>@(Model.EnrollmentCode ?? "-")</strong></div>
+        <div><span>Full Name</span><strong>@Model.FullName</strong></div>
+        <div><span>Email</span><strong>@Model.Email</strong></div>
+        <div><span>Contact</span><strong>@(Model.ContactNumber ?? "-")</strong></div>
+        <div><span>Section</span><strong>@(Model.Section?.SectionName ?? "Unassigned")</strong></div>
+        <div><span>Role</span><strong>Student</strong></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+@functions {
+    private static string GetInitials(string name)
+    {
+        var parts = (name ?? "Student").Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        return string.Join("", parts.Take(2).Select(part => part[0])).ToUpperInvariant();
+    }
+}

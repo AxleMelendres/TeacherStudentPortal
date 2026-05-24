@@ -1,0 +1,193 @@
+@model TeacherPortal.Models.ViewModels.SubjectDetailsViewModel
+@{
+    ViewData["Title"] = "Subject Details";
+}
+
+<div class="section-head">
+  <div>
+    <h2>@Model.Subject.SubjectCode - @Model.Subject.SubjectName</h2>
+    <div class="sub">
+      @if (!Model.Subject.Schedules.Any())
+      {
+        <span>No schedule set</span>
+      }
+      else
+      {
+        <span>@string.Join(" | ", Model.Subject.Schedules.Select(s => $"{s.Day}, {s.StartTime} - {s.EndTime}{(string.IsNullOrWhiteSpace(s.Room) ? "" : $" - {s.Room}")}"))</span>
+      }
+    </div>
+  </div>
+  <div class="form-actions" style="margin-top:0;">
+    <a class="btn btn-outline" asp-controller="Students" asp-action="Create" asp-route-subjectId="@Model.Subject.SubjectId">Add Student</a>
+    <a class="btn btn-outline" asp-action="Edit" asp-route-id="@Model.Subject.SubjectId">Edit Subject</a>
+  </div>
+</div>
+
+<div class="section-head subject-detail-toolbar">
+  <div>
+    <h2>Class Record</h2>
+    <div class="sub">@Model.Students.Count enrolled student(s)</div>
+  </div>
+  <form asp-action="Details" method="get" style="display:flex;gap:10px;align-items:end;">
+    <input type="hidden" name="id" value="@Model.Subject.SubjectId" />
+    <div class="form-row" style="margin:0;">
+      <label>Date</label>
+      @if (Model.AttendanceDateOptions.Any())
+      {
+        <select class="form-control" name="date">
+          @foreach (var option in Model.AttendanceDateOptions)
+          {
+            <option value="@option.Value" selected="@(option.Value == Model.AttendanceDate.ToString("yyyy-MM-dd"))">@option.Label</option>
+          }
+        </select>
+      }
+      else
+      {
+        <select class="form-control" name="date" disabled>
+          <option>No schedule dates available</option>
+        </select>
+      }
+    </div>
+    <button class="btn btn-secondary" type="submit" disabled="@(!Model.AttendanceDateOptions.Any())">Change Date</button>
+  </form>
+</div>
+
+@if (!Model.Students.Any())
+{
+  <div class="subject-record-grid">
+    <div class="panel">
+      <div class="panel-head"><h3>Enrolled Students</h3><span class="badge badge-gray">0 total</span></div>
+      <div class="empty">No students are enrolled yet.</div>
+    </div>
+    <div class="panel">
+      <div class="panel-head"><h3>Attendance - @Model.AttendanceDate.ToString("MMM dd, yyyy")</h3></div>
+      <div class="empty">No attendance records to mark.</div>
+    </div>
+  </div>
+}
+else
+{
+<div class="subject-record-grid">
+  <div class="panel">
+    <div class="panel-head">
+      <h3>Enrolled Students</h3>
+      <span class="badge badge-blue">@Model.Students.Count total</span>
+    </div>
+    <div class="panel-body" style="padding:0;">
+      <table class="table compact-table">
+        <thead>
+          <tr>
+            <th>Student</th>
+            <th>Section</th>
+          </tr>
+        </thead>
+        <tbody>
+          @foreach (var student in Model.Students)
+          {
+            <tr>
+              <td>
+                <div style="font-weight:700;">@student.FullName</div>
+                <div style="color:var(--color-muted);font-size:12px;">@student.StudentNumber · @student.Email</div>
+              </td>
+              <td>@student.SectionName</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head">
+      <h3>Attendance - @Model.AttendanceDate.ToString("dddd, MMM dd, yyyy")</h3>
+      <span class="badge badge-gray">@Model.AttendanceDate.ToString("dddd")</span>
+    </div>
+    <div class="panel-body" style="padding:0;">
+      <table class="table compact-table">
+        <thead>
+          <tr>
+            <th>Student</th>
+            <th>Status</th>
+            <th>Excuse Letter</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          @foreach (var student in Model.Students)
+          {
+            var badgeClass = student.Status == "Present" ? "badge-green" : student.Status == "Absent" ? "badge-red" : "badge-gray";
+            <tr>
+              <td>
+                <div style="font-weight:700;">@student.FullName</div>
+                <div style="color:var(--color-muted);font-size:12px;">@student.StudentNumber</div>
+              </td>
+              <td><span class="badge @badgeClass">@student.Status</span></td>
+              <td>
+                @if (student.Status == "Absent")
+                {
+                  <span class="badge @(student.HasExcuseLetter ? "badge-blue" : "badge-gray")">@(student.HasExcuseLetter ? "With letter" : "No letter")</span>
+                }
+                else
+                {
+                  <span style="color:var(--color-muted);">-</span>
+                }
+              </td>
+              <td>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                  <form asp-action="SetAttendance" method="post" style="margin:0;">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="subjectId" value="@Model.Subject.SubjectId" />
+                    <input type="hidden" name="studentId" value="@student.StudentId" />
+                    <input type="hidden" name="attendanceDate" value="@Model.AttendanceDate.ToString("yyyy-MM-dd")" />
+                    <input type="hidden" name="status" value="Present" />
+                    <input type="hidden" name="hasExcuseLetter" value="false" />
+                    <button class="btn btn-sm @(student.Status == "Present" ? "btn-primary" : "btn-outline")" type="submit" disabled="@(!Model.AttendanceDateOptions.Any())">Present</button>
+                  </form>
+                  <button class="btn btn-sm @(student.Status == "Absent" ? "btn-primary" : "btn-outline")" type="button" data-absent-open="@student.StudentId" disabled="@(!Model.AttendanceDateOptions.Any())">Absent</button>
+                  <form asp-action="SetAttendance" method="post" data-absent-form="@student.StudentId" style="margin:0;display:none;gap:6px;align-items:center;flex-wrap:wrap;">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="subjectId" value="@Model.Subject.SubjectId" />
+                    <input type="hidden" name="studentId" value="@student.StudentId" />
+                    <input type="hidden" name="attendanceDate" value="@Model.AttendanceDate.ToString("yyyy-MM-dd")" />
+                    <input type="hidden" name="status" value="Absent" />
+                    <select class="form-control" name="hasExcuseLetter" style="width:132px;padding:6px 10px;" disabled="@(!Model.AttendanceDateOptions.Any())">
+                      <option value="false" selected="@(!student.HasExcuseLetter)">No letter</option>
+                      <option value="true" selected="@(student.HasExcuseLetter)">With letter</option>
+                    </select>
+                    <button class="btn btn-sm btn-primary" type="submit" disabled="@(!Model.AttendanceDateOptions.Any())">Save</button>
+                    <button class="btn btn-sm btn-outline" type="button" data-absent-cancel="@student.StudentId">Cancel</button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+}
+
+<script>
+document.addEventListener("click", function (event) {
+  var openButton = event.target.closest("[data-absent-open]");
+  if (openButton) {
+    var studentId = openButton.getAttribute("data-absent-open");
+    var form = document.querySelector('[data-absent-form="' + studentId + '"]');
+    if (form) {
+      form.style.display = "flex";
+      openButton.style.display = "none";
+    }
+    return;
+  }
+
+  var cancelButton = event.target.closest("[data-absent-cancel]");
+  if (cancelButton) {
+    var cancelStudentId = cancelButton.getAttribute("data-absent-cancel");
+    var cancelForm = document.querySelector('[data-absent-form="' + cancelStudentId + '"]');
+    var absentButton = document.querySelector('[data-absent-open="' + cancelStudentId + '"]');
+    if (cancelForm) cancelForm.style.display = "none";
+    if (absentButton) absentButton.style.display = "";
+  }
+});
+</script>

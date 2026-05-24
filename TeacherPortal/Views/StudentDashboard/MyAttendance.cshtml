@@ -1,0 +1,53 @@
+@model IEnumerable<TeacherPortal.Models.Attendance>
+@{
+    ViewData["Title"] = "My Attendance";
+    var records = Model.ToList();
+}
+
+<div class="section-head">
+  <div>
+    <h2>My Attendance</h2>
+    <div class="sub">Attendance records connected to your enrolled subjects.</div>
+  </div>
+</div>
+
+<form method="get" class="student-filter-panel attendance-filter-panel">
+  <select name="subjectId" class="form-control" asp-items="ViewBag.Subjects">
+    <option value="">All subjects</option>
+  </select>
+  <input class="form-control" type="date" name="dateFrom" value="@ViewBag.DateFrom" />
+  <input class="form-control" type="date" name="dateTo" value="@ViewBag.DateTo" />
+  <button class="btn btn-secondary">Filter</button>
+  <a class="btn btn-outline" asp-action="MyAttendance">Reset</a>
+</form>
+
+<div class="panel">
+  <div class="panel-head">
+    <h3>Attendance History</h3>
+    <span class="profile-panel-note">@records.Count records</span>
+  </div>
+  <div class="panel-body" style="padding:0;">
+    @if (!records.Any())
+    {
+      <div class="empty">No records.</div>
+    }
+    else
+    {
+      <table class="table">
+        <thead><tr><th>Date</th><th>Subject</th><th>Status</th><th>Remarks</th></tr></thead>
+        <tbody>
+          @foreach (var attendance in records)
+          {
+            var cls = attendance.Status switch { "Present" => "badge-green", "Absent" => "badge-red", "Late" => "badge-yellow", _ => "badge-blue" };
+            <tr>
+              <td>@attendance.AttendanceDate.ToString("MMM dd, yyyy")</td>
+              <td><strong>@attendance.Subject?.SubjectCode</strong></td>
+              <td><span class="badge @cls">@attendance.Status</span></td>
+              <td>@(attendance.Remarks ?? "-")</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  </div>
+</div>

@@ -1,0 +1,67 @@
+@{
+    var pageTitle = ViewData["Title"] as string ?? "Dashboard";
+    var ctrl = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+    var act = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+    string activeIf(string c) => ctrl == c ? "active" : "";
+    var user = await UserManager.GetUserAsync(User);
+    var initials = string.IsNullOrWhiteSpace(user?.FullName)
+        ? "T"
+        : string.Concat(user!.FullName.Split(' ').Where(s => s.Length > 0).Take(2).Select(s => s[0]));
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>@pageTitle - CCS Teacher Portal</title>
+<link rel="stylesheet" href="~/css/theme.css" />
+<link rel="stylesheet" href="~/css/site.css" />
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="logo"><img src="~/images/ccs-logo.png" alt="College of Computer Studies logo" /></div>
+      <div class="name">CCS Portal<small>College of Computer Studies</small></div>
+    </div>
+    <nav>
+      <a class="@activeIf("TeacherDashboard")" asp-controller="TeacherDashboard" asp-action="Index"><span class="ico">D</span> Dashboard</a>
+      <a class="@activeIf("Students")" asp-controller="Students" asp-action="Index"><span class="ico">U</span> Students</a>
+      <a class="@activeIf("Sections")" asp-controller="Sections" asp-action="Index"><span class="ico">C</span> Sections</a>
+      <a class="@activeIf("Subjects")" asp-controller="Subjects" asp-action="Index"><span class="ico">B</span> Subjects</a>
+      <a class="@activeIf("Schedule")" asp-controller="Schedule" asp-action="Index"><span class="ico">S</span> Schedule</a>
+      <a class="@activeIf("Attendance")" asp-controller="Attendance" asp-action="Index"><span class="ico">A</span> Attendance</a>
+      <a class="@activeIf("Grades")" asp-controller="Grades" asp-action="Index"><span class="ico">G</span> Grades</a>
+      <a class="@activeIf("Reports")" asp-controller="Reports" asp-action="AttendanceReport"><span class="ico">R</span> Reports</a>
+      <a class="@(ctrl == "TeacherDashboard" && act == "Profile" ? "active" : "")" asp-controller="TeacherDashboard" asp-action="Profile"><span class="ico">P</span> Profile</a>
+    </nav>
+    <div class="foot">&copy; @DateTime.Now.Year CCS Teacher Portal</div>
+  </aside>
+  <div class="main">
+    <header class="topbar">
+      <div class="page-title">@pageTitle</div>
+      <div class="search"><input type="text" placeholder="Search students, subjects..." /></div>
+      <div class="meta">
+        <span>@DateTime.Now.ToString("dddd, MMM dd - h:mm tt")</span>
+        <div class="bell">!</div>
+        <div class="profile">
+          <div class="avatar">@initials</div>
+          <div>
+            <div style="font-weight:600;color:var(--color-text);font-size:13px;">@user?.FullName</div>
+            <div style="font-size:11.5px;">Teacher</div>
+          </div>
+        </div>
+        <form asp-controller="Account" asp-action="Logout" method="post" style="margin:0;">
+          @Html.AntiForgeryToken()
+          <button class="btn btn-outline btn-sm" type="submit">Logout</button>
+        </form>
+      </div>
+    </header>
+    <main class="content">
+      @if (TempData["msg"] != null) { <div class="alert alert-success">@TempData["msg"]</div> }
+      @RenderBody()
+    </main>
+  </div>
+</div>
+</body>
+</html>

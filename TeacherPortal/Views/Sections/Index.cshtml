@@ -1,0 +1,62 @@
+@model IEnumerable<SectionIndexViewModel>
+@{
+    ViewData["Title"] = "Sections";
+    var sections = Model.ToList();
+    var totalStudents = sections.Sum(s => s.StudentCount);
+}
+
+<div class="section-head">
+  <div>
+    <h2>Sections</h2>
+    <div class="sub">Organize class groups and monitor enrolled students.</div>
+  </div>
+  <a class="btn btn-primary" asp-action="Create">+ Add Section</a>
+</div>
+
+<div class="section-overview">
+  <div class="section-metric">
+    <span>Total Sections</span>
+    <strong>@sections.Count</strong>
+  </div>
+  <div class="section-metric">
+    <span>Enrolled Students</span>
+    <strong>@totalStudents</strong>
+  </div>
+  <div class="section-metric">
+    <span>Average Class Size</span>
+    <strong>@(sections.Any() ? Math.Round((decimal)totalStudents / sections.Count, 1) : 0)</strong>
+  </div>
+</div>
+
+@if (!sections.Any())
+{
+  <div class="panel">
+    <div class="empty"><div class="ico">[]</div>No sections yet.</div>
+  </div>
+}
+else
+{
+  <div class="sections-grid">
+    @foreach (var sectionItem in sections)
+    {
+      <article class="section-card">
+        <div class="section-card-top">
+          <div>
+            <h3>@sectionItem.SectionName</h3>
+            <span>@sectionItem.YearLevel</span>
+          </div>
+          <div class="section-count">@sectionItem.StudentCount</div>
+        </div>
+        <p>@(string.IsNullOrWhiteSpace(sectionItem.Description) ? "No description provided." : sectionItem.Description)</p>
+        <div class="section-card-foot">
+          <span>@sectionItem.StudentCount enrolled students</span>
+          <div class="actions">
+            <a asp-action="Details" asp-route-id="@sectionItem.SectionId">View</a>
+            <a asp-action="Edit" asp-route-id="@sectionItem.SectionId">Edit</a>
+            <a asp-action="Delete" asp-route-id="@sectionItem.SectionId" style="color:var(--color-primary)">Delete</a>
+          </div>
+        </div>
+      </article>
+    }
+  </div>
+}

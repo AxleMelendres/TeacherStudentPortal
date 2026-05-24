@@ -1,0 +1,11 @@
+@model TeacherPortal.Models.Attendance
+@{ ViewData["Title"]="Attendance Details"; }
+<div class="section-head"><h2>Attendance Detail</h2></div>
+<div class="form-card">
+<div class="form-row"><label>Student</label><div>@Model.Student?.FullName</div></div>
+<div class="form-row"><label>Subject</label><div>@Model.Subject?.SubjectName</div></div>
+<div class="form-row"><label>Date</label><div>@Model.AttendanceDate.ToString("MMM dd, yyyy")</div></div>
+<div class="form-row"><label>Status</label><div><span class="badge badge-gray">@Model.Status</span></div></div>
+<div class="form-row"><label>Excuse Letter</label><div>@(Model.Status == "Absent" ? (Model.HasExcuseLetter ? "With letter" : "No letter") : "-")</div></div>
+<div class="form-row"><label>Remarks</label><div>@Model.Remarks</div></div>
+</div>

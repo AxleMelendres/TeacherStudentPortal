@@ -1,0 +1,81 @@
+@{
+    var pageTitle = ViewData["Title"] as string ?? "Dashboard";
+    var act = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+    string activeIf(string a) => act == a ? "active" : "";
+    var user = await UserManager.GetUserAsync(User);
+    var initials = string.IsNullOrWhiteSpace(user?.FullName)
+        ? "S"
+        : string.Concat(user!.FullName.Split(' ').Where(s => s.Length > 0).Take(2).Select(s => s[0]));
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>@pageTitle - CCS Student Portal</title>
+<link rel="stylesheet" href="~/css/theme.css" />
+<link rel="stylesheet" href="~/css/site.css" />
+</head>
+<body>
+@if (TempData["msg"] is string message)
+{
+  <div class="portal-alert-overlay" data-portal-alert>
+    <div class="portal-alert">
+      <div class="portal-alert-icon">✓</div>
+      <h3>Success</h3>
+      <p>@message</p>
+      <button class="btn btn-primary" type="button" data-portal-alert-close>OK</button>
+    </div>
+  </div>
+}
+<div class="app-shell student-app-shell">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="logo"><img src="~/images/ccs-logo.png" alt="College of Computer Studies logo" /></div>
+      <div class="name">CCS Portal<small>Student Portal</small></div>
+    </div>
+    <nav>
+      <a class="@activeIf("Index")" asp-controller="StudentDashboard" asp-action="Index"><span class="ico">D</span> Dashboard</a>
+      <a class="@activeIf("MySubjects")" asp-controller="StudentDashboard" asp-action="MySubjects"><span class="ico">S</span> My Subjects</a>
+      <a class="@activeIf("MySchedule")" asp-controller="StudentDashboard" asp-action="MySchedule"><span class="ico">T</span> My Schedule</a>
+      <a class="@activeIf("MyGrades")" asp-controller="StudentDashboard" asp-action="MyGrades"><span class="ico">G</span> My Grades</a>
+      <a class="@activeIf("MyAttendance")" asp-controller="StudentDashboard" asp-action="MyAttendance"><span class="ico">A</span> My Attendance</a>
+      <a class="@activeIf("Profile")" asp-controller="StudentDashboard" asp-action="Profile"><span class="ico">P</span> Profile</a>
+    </nav>
+    <div class="foot">&copy; @DateTime.Now.Year CCS Student Portal</div>
+  </aside>
+  <div class="main">
+    <header class="topbar">
+      <div class="page-title">@pageTitle</div>
+      <div class="search"><input type="text" placeholder="Search subjects, grades..." /></div>
+      <div class="meta">
+        <span>@DateTime.Now.ToString("dddd, MMM dd - h:mm tt")</span>
+        <div class="bell">!</div>
+        <div class="profile">
+          <div class="avatar">@initials</div>
+          <div>
+            <div style="font-weight:600;color:var(--color-text);font-size:13px;">@user?.FullName</div>
+            <div style="font-size:11.5px;">Student</div>
+          </div>
+        </div>
+        <form asp-controller="Account" asp-action="Logout" method="post" style="margin:0;">
+          @Html.AntiForgeryToken()
+          <button class="btn btn-outline btn-sm" type="submit">Logout</button>
+        </form>
+      </div>
+    </header>
+    <main class="content">
+      @RenderBody()
+    </main>
+  </div>
+</div>
+<script>
+document.addEventListener("click", function (event) {
+  if (event.target.matches("[data-portal-alert-close]")) {
+    var alert = document.querySelector("[data-portal-alert]");
+    if (alert) alert.remove();
+  }
+});
+</script>
+</body>
+</html>

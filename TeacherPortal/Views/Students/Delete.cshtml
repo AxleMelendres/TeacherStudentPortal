@@ -1,0 +1,28 @@
+@model TeacherPortal.Models.Student
+@{ ViewData["Title"] = "Delete Student"; }
+
+<div class="section-head">
+  <div>
+    <h2>Delete Student</h2>
+    <div class="sub">Review this record before removing it permanently.</div>
+  </div>
+</div>
+
+<div class="delete-confirm-card">
+  <div class="delete-confirm-icon">!</div>
+  <div>
+    <h3>Delete @Model.FullName?</h3>
+    <p>This will permanently delete the student record and related academic records. This action cannot be undone.</p>
+    <div class="student-delete-summary">
+      <span>@Model.StudentNumber</span>
+      <span>@Model.Email</span>
+    </div>
+    <form asp-action="Delete" method="post">
+      <input type="hidden" asp-for="StudentId" />
+      <div class="form-actions">
+        <button class="btn btn-primary">Delete Student</button>
+        <a class="btn btn-outline" asp-action="Index">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>

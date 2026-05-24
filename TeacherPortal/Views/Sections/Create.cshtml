@@ -1,0 +1,36 @@
+@model TeacherPortal.Models.Section
+@{ ViewData["Title"] = "Add Section"; }
+
+<div class="section-head">
+  <div>
+    <h2>Add Section</h2>
+    <div class="sub">Create a class grouping for your students.</div>
+  </div>
+</div>
+
+<div class="form-card section-form-card">
+  <form asp-action="Create" method="post">
+    <div asp-validation-summary="ModelOnly"></div>
+    <div class="profile-form-grid">
+      <div class="form-row">
+        <label asp-for="SectionName">Section Name</label>
+        <input asp-for="SectionName" class="form-control" placeholder="e.g. BSCS 2A" />
+        <span asp-validation-for="SectionName" class="text-danger"></span>
+      </div>
+      <div class="form-row">
+        <label asp-for="YearLevel">Year Level</label>
+        <input asp-for="YearLevel" class="form-control" placeholder="e.g. 2nd Year" />
+        <span asp-validation-for="YearLevel" class="text-danger"></span>
+      </div>
+    </div>
+    <div class="form-row">
+      <label asp-for="Description"></label>
+      <textarea asp-for="Description" class="form-control" rows="4" placeholder="Optional notes about this section"></textarea>
+      <span asp-validation-for="Description" class="text-danger"></span>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-primary">Create Section</button>
+      <a class="btn btn-outline" asp-action="Index">Cancel</a>
+    </div>
+  </form>
+</div>

@@ -1,0 +1,48 @@
+@model TeacherPortal.Models.ViewModels.DashboardViewModel
+@{ ViewData["Title"] = "Dashboard"; }
+
+<section class="hero">
+  <div>
+    <h1>Welcome back, @Model.TeacherName 👋</h1>
+    <p>Here's your overview for today. Manage your classes and keep your students on track.</p>
+  </div>
+  <div class="ribbon">📅 @DateTime.Now.ToString("dddd, MMMM dd, yyyy")</div>
+</section>
+
+<div class="stats">
+  <div class="stat-card"><div class="ico">◉</div><div class="label">Total Students</div><div class="value">@Model.TotalStudents</div></div>
+  <div class="stat-card gold"><div class="ico">≡</div><div class="label">Total Subjects</div><div class="value">@Model.TotalSubjects</div></div>
+  <div class="stat-card dark"><div class="ico">▤</div><div class="label">Total Sections</div><div class="value">@Model.TotalSections</div></div>
+  <div class="stat-card"><div class="ico">✓</div><div class="label">Attendance Today</div><div class="value">@Model.AttendanceToday</div></div>
+</div>
+
+<div class="grid-2">
+  <div class="panel">
+    <div class="panel-head"><h3>Recent Attendance</h3><a asp-controller="Attendance" asp-action="Index" class="btn btn-outline btn-sm">View all</a></div>
+    <div class="panel-body" style="padding:0;">
+      @if (!Model.RecentAttendance.Any()) { <div class="empty"><div class="ico">📭</div>No attendance records yet.</div> }
+      else {
+        <table class="table"><thead><tr><th>Student</th><th>Subject</th><th>Date</th><th>Status</th></tr></thead><tbody>
+        @foreach (var a in Model.RecentAttendance) {
+          var cls = a.Status switch { "Present"=>"badge-green","Absent"=>"badge-red","Late"=>"badge-yellow",_=>"badge-blue"};
+          <tr><td>@a.Student?.FullName</td><td>@a.Subject?.SubjectCode</td><td>@a.AttendanceDate.ToString("MMM dd, yyyy")</td><td><span class="badge @cls">@a.Status</span></td></tr>
+        }
+        </tbody></table>
+      }
+    </div>
+  </div>
+  <div class="panel">
+    <div class="panel-head"><h3>Recent Grade Updates</h3><a asp-controller="Grades" asp-action="Index" class="btn btn-outline btn-sm">View all</a></div>
+    <div class="panel-body" style="padding:0;">
+      @if (!Model.RecentGrades.Any()) { <div class="empty"><div class="ico">📊</div>No grades yet.</div> }
+      else {
+        <table class="table"><thead><tr><th>Student</th><th>Subject</th><th>Final</th><th>Remarks</th></tr></thead><tbody>
+        @foreach (var g in Model.RecentGrades) {
+          var cls = g.Remarks == "Passed" ? "badge-green" : "badge-red";
+          <tr><td>@g.Student?.FullName</td><td>@g.Subject?.SubjectCode</td><td><strong>@g.FinalGrade</strong></td><td><span class="badge @cls">@g.Remarks</span></td></tr>
+        }
+        </tbody></table>
+      }
+    </div>
+  </div>
+</div>

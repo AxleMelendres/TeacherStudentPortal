@@ -1,0 +1,78 @@
+@model TeacherPortal.Models.ViewModels.ScheduleIndexViewModel
+@{
+    ViewData["Title"] = "Schedule";
+    var teacherName = ViewBag.TeacherName as string ?? "Teacher";
+    var employeeNumber = ViewBag.EmployeeNumber as string ?? "";
+}
+
+<div class="section-head">
+  <div>
+    <h2>Schedule</h2>
+    <div class="sub">Weekly teaching schedule from Monday to Sunday</div>
+  </div>
+  <button class="btn btn-primary print-hide" type="button" onclick="window.print()">Print Schedule</button>
+</div>
+
+<div class="panel schedule-panel printable-schedule">
+  <div class="schedule-print-header">
+    <img src="~/images/schedule-print-logo.png" alt="College of Computer Studies logo" />
+    <div>
+      <div class="schedule-print-kicker">Republic of the Philippines</div>
+      <h1>College of Computer Studies</h1>
+      <p>Weekly Teaching Schedule</p>
+      <div class="schedule-print-meta">
+        <span>Teacher: <strong>@teacherName</strong></span>
+        @if (!string.IsNullOrWhiteSpace(employeeNumber))
+        {
+          <span>Employee No.: <strong>@employeeNumber</strong></span>
+        }
+        <span>Printed: <strong>@DateTime.Now.ToString("MMMM dd, yyyy")</strong></span>
+      </div>
+    </div>
+  </div>
+  <div class="panel-body" style="padding:0;">
+    <div class="schedule-table-wrap">
+      <table class="table schedule-table">
+        <thead>
+          <tr>
+            <th>Time</th>
+            @foreach (var day in Model.Days)
+            {
+              <th>@day</th>
+            }
+          </tr>
+        </thead>
+        <tbody>
+          @foreach (var slot in Model.TimeSlots)
+          {
+            <tr>
+              <td class="schedule-time"><strong>@slot</strong></td>
+              @for (var dayIndex = 0; dayIndex < Model.Days.Count; dayIndex++)
+              {
+                var entries = Model.Entries.Where(e => e.DayOrder == dayIndex && e.TimeSlot == slot).ToList();
+                <td>
+                  @if (!entries.Any())
+                  {
+                    <span class="schedule-empty">Available</span>
+                  }
+                  else
+                  {
+                    foreach (var entry in entries)
+                    {
+                      <div class="schedule-entry">
+                        <strong>@entry.SubjectCode</strong>
+                        <span>@entry.SubjectName</span>
+                        <small>@entry.SectionName</small>
+                        <small>@entry.Room</small>
+                      </div>
+                    }
+                  }
+                </td>
+              }
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

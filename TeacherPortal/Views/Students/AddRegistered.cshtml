@@ -1,0 +1,77 @@
+@model TeacherPortal.Models.ViewModels.AddRegisteredStudentViewModel
+@{
+    ViewData["Title"] = "Add Registered Student";
+    var subjects = (List<TeacherPortal.Models.Subject>)ViewBag.Subjects;
+    var selectedSubjectIds = Model.SubjectIds?.ToHashSet() ?? new HashSet<int>();
+}
+
+<div class="section-head">
+  <div>
+    <h2>Add Registered Student</h2>
+    <div class="sub">Use the Student ID and enrollment code generated during student registration.</div>
+  </div>
+  <a class="btn btn-outline" asp-action="Index">Back</a>
+</div>
+
+<div class="student-form-layout">
+  <div class="form-card student-form-card">
+    <form asp-action="AddRegistered" method="post">
+      <div asp-validation-summary="ModelOnly"></div>
+
+      <div class="student-form-section">
+        <h3>Student Lookup</h3>
+        <div class="form-row">
+          <label asp-for="StudentNumber">Student ID</label>
+          <input asp-for="StudentNumber" class="form-control" placeholder="e.g. STU-2026-X7KQ92" />
+          <span asp-validation-for="StudentNumber" class="text-danger"></span>
+        </div>
+        <div class="form-row">
+          <label asp-for="EnrollmentCode">Enrollment Code</label>
+          <input asp-for="EnrollmentCode" class="form-control" placeholder="e.g. 8KQ4PZ2A" />
+          <span asp-validation-for="EnrollmentCode" class="text-danger"></span>
+        </div>
+      </div>
+
+      <div class="student-form-section">
+        <h3>Enrollment</h3>
+        <div class="form-row">
+          <label asp-for="SectionId">Section</label>
+          <select asp-for="SectionId" class="form-control" asp-items="ViewBag.Sections"><option value="">Select section</option></select>
+          <span asp-validation-for="SectionId" class="text-danger"></span>
+        </div>
+        <div class="form-row">
+          <label>Subjects</label>
+          @if (subjects.Any())
+          {
+            <div class="student-subject-picker">
+              @foreach (var subject in subjects)
+              {
+                <label>
+                  <input type="checkbox" name="SubjectIds" value="@subject.SubjectId" checked="@selectedSubjectIds.Contains(subject.SubjectId)" />
+                  <span>
+                    <strong>@subject.SubjectCode</strong>
+                    @subject.SubjectName
+                  </span>
+                </label>
+              }
+            </div>
+          }
+          else
+          {
+            <div class="empty compact-empty">No subjects available yet.</div>
+          }
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn btn-primary">Add Student</button>
+        <a class="btn btn-outline" asp-action="Index">Cancel</a>
+      </div>
+    </form>
+  </div>
+
+  <aside class="student-help-card">
+    <h3>Registered Students</h3>
+    <p>Students register from the login page and receive both a Student ID and enrollment code. Enter both to connect them to your teacher portal.</p>
+  </aside>
+</div>

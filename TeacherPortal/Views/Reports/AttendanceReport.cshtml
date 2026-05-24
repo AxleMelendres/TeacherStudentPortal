@@ -1,0 +1,9 @@
+@model IEnumerable<TeacherPortal.Models.Attendance>
+@{ ViewData["Title"]="Attendance Report"; }
+<div class="section-head"><div><h2>Attendance Report</h2><div class="sub">Full attendance history</div></div></div>
+<div class="panel"><div class="panel-body" style="padding:0;">
+<table class="table"><thead><tr><th>Date</th><th>Student</th><th>Subject</th><th>Status</th><th>Remarks</th></tr></thead><tbody>
+@foreach(var a in Model){var cls = a.Status switch { "Present"=>"badge-green","Absent"=>"badge-red","Late"=>"badge-yellow",_=>"badge-blue"};
+<tr><td>@a.AttendanceDate.ToString("MMM dd, yyyy")</td><td>@a.Student?.FullName</td><td>@a.Subject?.SubjectCode</td>
+<td><span class="badge @cls">@a.Status</span></td><td>@a.Remarks</td></tr>}
+</tbody></table></div></div>

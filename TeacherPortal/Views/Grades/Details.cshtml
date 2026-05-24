@@ -1,0 +1,41 @@
+@model IEnumerable<TeacherPortal.Models.Subject>
+@{ ViewData["Title"] = "Grades"; }
+
+<div class="section-head">
+    <div><h2>Grades</h2><div class="sub">Select a subject to manage grades</div></div>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="panel"><div class="empty"><div class="ico">≡</div>No subjects yet.</div></div>
+}
+else
+{
+    <div class="subjects-grid">
+        @foreach (var s in Model)
+        {
+            <a class="subject-card" asp-action="Subject" asp-route-id="@s.SubjectId" style="text-decoration:none;">
+                <div class="subject-card-header">
+                    <div>
+                        <div class="subject-card-code">@s.SubjectCode</div>
+                        <div class="subject-card-name">@s.SubjectName</div>
+                    </div>
+                    <span style="font-size:22px;opacity:.2;">&#9998;</span>
+                </div>
+                <div class="subject-card-schedule" style="border-top:0.5px solid var(--color-border,#e5e5e5);padding-top:12px;margin-top:auto;">
+                    <span>Manage grades &rarr;</span>
+                </div>
+            </a>
+        }
+    </div>
+}
+
+<style>
+.subjects-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+.subject-card{background:var(--color-surface,#fff);border:0.5px solid var(--color-border,#e5e5e5);border-radius:var(--border-radius-md,10px);padding:22px 24px;display:flex;flex-direction:column;gap:14px;transition:box-shadow .15s;cursor:pointer;}
+.subject-card:hover{box-shadow:0 2px 12px rgba(0,0,0,.07);}
+.subject-card-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;}
+.subject-card-code{font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--color-primary,#c0392b);margin-bottom:4px;}
+.subject-card-name{font-size:17px;font-weight:600;color:var(--color-text,#111);line-height:1.3;}
+.subject-card-schedule{font-size:13px;color:var(--color-muted);}
+</style>

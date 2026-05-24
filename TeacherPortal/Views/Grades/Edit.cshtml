@@ -1,0 +1,14 @@
+@model TeacherPortal.Models.Grade
+@{ ViewData["Title"]="Edit Grade"; }
+<div class="section-head"><h2>Edit Grade — @Model.Student?.FullName / @Model.Subject?.SubjectCode</h2></div>
+<div class="form-card"><form asp-action="Edit" method="post"><input type="hidden" asp-for="GradeId"/>
+<input type="hidden" asp-for="StudentId"/><input type="hidden" asp-for="SubjectId"/>
+<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;">
+<div class="form-row"><label>Quiz</label><input asp-for="Quiz" class="form-control" type="number" step="0.01" min="0" max="100"/></div>
+<div class="form-row"><label>Activity</label><input asp-for="Activity" class="form-control" type="number" step="0.01" min="0" max="100"/></div>
+<div class="form-row"><label>Assignment</label><input asp-for="Assignment" class="form-control" type="number" step="0.01" min="0" max="100"/></div>
+<div class="form-row"><label>Midterm</label><input asp-for="MidtermExam" class="form-control" type="number" step="0.01" min="0" max="100"/></div>
+<div class="form-row"><label>Final Exam</label><input asp-for="FinalExam" class="form-control" type="number" step="0.01" min="0" max="100"/></div>
+</div>
+<div class="form-actions"><button class="btn btn-primary">Save</button><a class="btn btn-outline" asp-action="Index">Cancel</a></div>
+</form></div>

@@ -1,0 +1,157 @@
+@model IEnumerable<TeacherPortal.Models.Subject>
+@{
+    ViewData["Title"] = "Subjects";
+    var enrolledCounts = (Dictionary<int, int>)(ViewBag.EnrolledCounts ?? new Dictionary<int, int>());
+}
+
+<div class="section-head">
+    <div>
+        <h2>Subjects</h2>
+        <div class="sub">Courses you teach</div>
+    </div>
+    <a class="btn btn-primary" asp-action="Create">+ Add Subject</a>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="panel">
+        <div class="empty"><div class="ico">≡</div>No subjects yet.</div>
+    </div>
+}
+else
+{
+    <div class="subjects-grid">
+        @foreach (var s in Model)
+        {
+            var count = enrolledCounts.TryGetValue(s.SubjectId, out var c) ? c : 0;
+            var scheduleText = s.Schedules != null && s.Schedules.Any()
+                ? string.Join(" · ", s.Schedules.Select(sc =>
+                    $"{sc.Day} {(System.TimeOnly.TryParse(sc.StartTime, out var st) ? st.ToString("h:mm tt") : sc.StartTime)} – {(System.TimeOnly.TryParse(sc.EndTime, out var et) ? et.ToString("h:mm tt") : sc.EndTime)}{(!string.IsNullOrWhiteSpace(sc.Room) ? $" ({sc.Room})" : "")}"))
+                : "No schedule set";
+
+            <div class="subject-card">
+                <div class="subject-card-header">
+                    <div>
+                        <div class="subject-card-code">@s.SubjectCode</div>
+                        <div class="subject-card-name">@s.SubjectName</div>
+                    </div>
+                    <span class="badge @(count > 0 ? "badge-blue" : "badge-gray")">
+                        @count student@(count != 1 ? "s" : "")
+                    </span>
+                </div>
+
+                @if (!string.IsNullOrWhiteSpace(s.Description))
+                {
+                    <div class="subject-card-desc">@s.Description</div>
+                }
+
+                <div class="subject-card-schedule">
+                    <span class="subject-schedule-icon">&#128197;</span>
+                    @scheduleText
+                </div>
+
+                <div class="subject-card-footer">
+                    <a class="subject-card-btn" asp-action="Details" asp-route-id="@s.SubjectId">
+                        View class
+                    </a>
+                    <div style="display:flex;gap:6px;">
+                        <a class="subject-card-btn" asp-action="Edit" asp-route-id="@s.SubjectId">Edit</a>
+                        <a class="subject-card-btn subject-card-btn-danger" asp-action="Delete" asp-route-id="@s.SubjectId">Delete</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+<style>
+.subjects-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+}
+.subject-card {
+    background: var(--color-surface, #fff);
+    border: 0.5px solid var(--color-border, #e5e5e5);
+    border-radius: var(--border-radius-md, 10px);
+    padding: 22px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    transition: box-shadow .15s;
+}
+.subject-card:hover {
+    box-shadow: 0 2px 12px rgba(0,0,0,.07);
+}
+.subject-card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+}
+.subject-card-code {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .07em;
+    text-transform: uppercase;
+    color: var(--color-primary, #c0392b);
+    margin-bottom: 4px;
+}
+.subject-card-name {
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--color-text, #111);
+    line-height: 1.3;
+}
+.subject-card-desc {
+    font-size: 13px;
+    color: var(--color-muted);
+    line-height: 1.5;
+}
+.subject-card-schedule {
+    font-size: 13px;
+    color: var(--color-muted);
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    line-height: 1.5;
+    border-top: 0.5px solid var(--color-border, #e5e5e5);
+    padding-top: 14px;
+}
+.subject-schedule-icon {
+    font-size: 14px;
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+.subject-card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    border-top: 0.5px solid var(--color-border, #e5e5e5);
+    padding-top: 14px;
+    margin-top: auto;
+}
+.subject-card-btn {
+    font-size: 13px;
+    padding: 7px 16px;
+    border-radius: var(--border-radius-md, 8px);
+    border: 0.5px solid var(--color-border, #e5e5e5);
+    background: transparent;
+    color: var(--color-text, #111);
+    text-decoration: none;
+    transition: background .12s;
+    cursor: pointer;
+    white-space: nowrap;
+}
+.subject-card-btn:hover {
+    background: var(--color-hover, #f5f5f5);
+}
+.subject-card-btn-danger {
+    color: var(--color-primary, #c0392b);
+    border-color: transparent;
+}
+.subject-card-btn-danger:hover {
+    background: var(--color-danger-bg, #fff0f0);
+}
+</style>

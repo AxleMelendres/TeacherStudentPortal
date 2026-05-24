@@ -1,0 +1,42 @@
+@model TeacherPortal.Models.ViewModels.LoginViewModel
+@{ ViewData["Title"] = "Student Sign in"; Layout = null; }
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Student Sign in - CCS Portal</title>
+<link rel="stylesheet" href="~/css/theme.css"/><link rel="stylesheet" href="~/css/site.css"/></head>
+<body><div class="auth-shell">
+  <div class="auth-brand">
+    <div class="logo"><img src="~/images/ccs-logo.png" alt="College of Computer Studies logo"/> CCS Student Portal</div>
+    <div>
+      <h1>College of Computer Studies</h1>
+      <p>View your enrolled subjects, section, attendance, and grades from your student portal.</p>
+    </div>
+    <div style="opacity:.82;font-size:13px;">&copy; @DateTime.Now.Year - College of Computer Studies</div>
+  </div>
+  <div class="auth-form">
+    <div class="auth-card">
+      @if (TempData["msg"] is string message)
+      {
+        <div class="auth-notice" role="status">
+          <div class="auth-notice-icon">OK</div>
+          <div>
+            <strong>Session ended</strong>
+            <span>@message</span>
+          </div>
+        </div>
+      }
+      <h2>Student sign in</h2>
+      <div class="sub">Sign in with your student account.</div>
+      <form asp-action="StudentLogin" method="post">
+        <div asp-validation-summary="ModelOnly"></div>
+        <div class="form-row"><label>Email or Student ID</label><input asp-for="Email" class="form-control"/><span asp-validation-for="Email" class="text-danger"></span></div>
+        <div class="form-row"><label>Password</label><input asp-for="Password" class="form-control"/><span asp-validation-for="Password" class="text-danger"></span></div>
+        <div class="form-row" style="display:flex;align-items:center;gap:8px;"><input type="checkbox" asp-for="RememberMe"/> <label asp-for="RememberMe" style="margin:0;">Remember me</label></div>
+        <button type="submit" class="btn btn-primary" style="width:100%;">Sign in</button>
+      </form>
+      <div style="text-align:center;margin-top:16px;font-size:13px;color:var(--color-muted);">
+        New student? <a asp-action="RegisterStudent">Register here</a><br/>
+        Teacher account? <a asp-action="Login">Go to teacher portal</a>
+      </div>
+    </div>
+  </div>
+</div></body></html>

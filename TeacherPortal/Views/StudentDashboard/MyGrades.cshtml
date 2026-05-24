@@ -1,0 +1,107 @@
+@model IEnumerable<TeacherPortal.Models.ViewModels.StudentPortalGradeViewModel>
+@{
+    ViewData["Title"] = "My Grades";
+    var grades = Model.ToList();
+}
+
+<div class="section-head">
+  <div>
+    <h2>My Grades</h2>
+    <div class="sub">Grade records submitted by your teacher.</div>
+  </div>
+</div>
+
+<div class="panel">
+  <div class="panel-head">
+    <h3>Grade Summary</h3>
+    <span class="profile-panel-note">@grades.Count records</span>
+  </div>
+  <div class="panel-body" style="padding:0;">
+    @if (!grades.Any())
+    {
+      <div class="empty">No grades yet.</div>
+    }
+    else
+    {
+      <div class="student-table-wrap">
+        <table class="table student-table">
+          <thead><tr><th>Subject</th><th>Section</th><th>Midterm</th><th>Finals</th><th>Final Grade</th><th>Progress</th><th>Remarks</th></tr></thead>
+          <tbody>
+            @foreach (var grade in grades)
+            {
+              var cls = grade.Remarks == "Passed" ? "badge-green" : grade.Remarks == "Failed" ? "badge-red" : "badge-yellow";
+              <tr>
+                <td><strong>@grade.SubjectCode</strong><small>@grade.SubjectName</small></td>
+                <td>@grade.SectionName</td>
+                <td>@(grade.MidtermGrade?.ToString("0.00") ?? "-")</td>
+                <td>@(grade.FinalsGrade?.ToString("0.00") ?? "-")</td>
+                <td><strong>@(grade.FinalGrade?.ToString("0.00") ?? "-")</strong></td>
+                <td>@grade.RecordedScores / @grade.TotalColumns scores</td>
+                <td><span class="badge @cls">@grade.Remarks</span></td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+</div>
+
+<div class="student-grade-details">
+  @foreach (var grade in grades)
+  {
+    <div class="panel">
+      <div class="panel-head">
+        <h3>@grade.SubjectCode - @grade.SubjectName</h3>
+        <span class="profile-panel-note">@grade.SectionName</span>
+      </div>
+      <div class="panel-body" style="padding:0;">
+        @if (!grade.Scores.Any())
+        {
+          <div class="empty compact-empty">No activities, quizzes, exams, or projects posted yet.</div>
+        }
+        else
+        {
+          <div class="student-table-wrap">
+            <table class="table student-table">
+              <thead>
+                <tr>
+                  <th>Period</th>
+                  <th>Type</th>
+                  <th>Title</th>
+                  <th>Score</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                @foreach (var score in grade.Scores.OrderBy(s => s.Period).ThenBy(s => s.Type).ThenBy(s => s.Order))
+                {
+                  <tr>
+                    <td>@score.Period</td>
+                    <td><span class="badge badge-blue">@score.Type</span></td>
+                    <td><strong>@score.Title</strong></td>
+                    <td>
+                      @if (score.Score.HasValue)
+                      {
+                        <strong>@score.Score.Value.ToString("0.##")</strong><span> / @score.MaxScore.ToString("0.##")</span>
+                      }
+                      else
+                      {
+                        <span>- / @score.MaxScore.ToString("0.##")</span>
+                      }
+                    </td>
+                    <td>
+                      <span class="badge @(score.Score.HasValue ? "badge-green" : "badge-gray")">
+                        @(score.Score.HasValue ? "Recorded" : "No score")
+                      </span>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>

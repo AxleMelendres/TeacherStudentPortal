@@ -1,0 +1,350 @@
+@model IEnumerable<TeacherPortal.Models.Attendance>
+@using TeacherPortal.Models
+@{
+    ViewData["Title"] = "Attendance";
+    var subjects = ViewBag.Subjects as IEnumerable<TeacherPortal.Models.Subject> ?? Enumerable.Empty<TeacherPortal.Models.Subject>();
+    var recordCounts = ViewBag.RecordCounts as Dictionary<int, int> ?? new Dictionary<int, int>();
+    var presentCounts = ViewBag.PresentCounts as Dictionary<int, int> ?? new Dictionary<int, int>();
+    var absentCounts = ViewBag.AbsentCounts as Dictionary<int, int> ?? new Dictionary<int, int>();
+    var lateCounts = ViewBag.LateCounts as Dictionary<int, int> ?? new Dictionary<int, int>();
+    var selectedSubjectId = (int)(ViewBag.SelectedSubjectId ?? 0);
+    var search = ViewBag.Search as string ?? "";
+    var statusFilter = ViewBag.Status as string ?? "";
+    var dateFilter = ViewBag.Date as string ?? "";
+}
+
+<div class="section-head">
+    <div>
+        <h2>Attendance</h2>
+        <div class="sub">Select a subject to view records</div>
+    </div>
+</div>
+
+<div class="attendance-layout">
+
+    <div class="attendance-subjects">
+        <div class="attendance-subjects-head">Subjects</div>
+        <div class="attendance-subjects-list">
+            @if (!subjects.Any())
+            {
+                <div class="empty" style="padding:24px 16px;font-size:13px;">No subjects found.</div>
+            }
+            else
+            {
+                @foreach (var s in subjects)
+                {
+                    var count = recordCounts.GetValueOrDefault(s.SubjectId, 0);
+                    var schedule = s.Schedules.Any()
+                        ? string.Join(", ", s.Schedules.Select(sc => sc.Day).Distinct())
+                        : "No schedule";
+                    var isActive = s.SubjectId == selectedSubjectId;
+                    <a class="subject-item @(isActive ? "subject-item-active" : "")"
+                       href="@Url.Action("Index", "Attendance", new { subjectId = s.SubjectId })">
+                        <div class="subject-item-code @(isActive ? "subject-item-code-active" : "")">@s.SubjectCode</div>
+                        <div class="subject-item-name">@s.SubjectName</div>
+                        <div class="subject-item-meta">
+                            <span class="subject-dot @(isActive ? "subject-dot-active" : "")"></span>
+                            @schedule &middot; @count record@(count != 1 ? "s" : "")
+                        </div>
+                    </a>
+                }
+            }
+        </div>
+    </div>
+
+    <div class="attendance-records">
+        @if (selectedSubjectId == 0)
+        {
+            <div class="attendance-empty">
+                <div class="attendance-empty-icon">&#9776;</div>
+                <div>Select a subject to view attendance records</div>
+            </div>
+        }
+        else
+        {
+            var activeSubject = subjects.FirstOrDefault(s => s.SubjectId == selectedSubjectId);
+            var total = recordCounts.GetValueOrDefault(selectedSubjectId, 0);
+            var present = presentCounts.GetValueOrDefault(selectedSubjectId, 0);
+            var absent = absentCounts.GetValueOrDefault(selectedSubjectId, 0);
+            var late = lateCounts.GetValueOrDefault(selectedSubjectId, 0);
+
+            <div class="attendance-records-head">
+                <div>
+                    <div class="attendance-records-title">@activeSubject?.SubjectCode — @activeSubject?.SubjectName</div>
+                    <div class="attendance-records-sub">
+                        @{
+                            var sched = activeSubject?.Schedules.Any() == true
+                                ? string.Join(", ", activeSubject.Schedules.Select(sc => sc.Day).Distinct())
+                                : "No schedule";
+                        }
+                        @sched &middot; @total record@(total != 1 ? "s" : "")
+                    </div>
+                </div>
+                <div style="display:flex;gap:8px;">
+                    <a class="btn btn-outline" asp-action="AttendanceSheet" asp-route-subjectId="@selectedSubjectId">Sheet</a>
+                    <a class="btn btn-primary" asp-action="Create">+ Add Record</a>
+                </div>
+            </div>
+
+            <div class="attendance-stats">
+                <div class="attendance-stat">
+                    <div class="attendance-stat-label">Total</div>
+                    <div class="attendance-stat-val">@total</div>
+                </div>
+                <div class="attendance-stat">
+                    <div class="attendance-stat-label">Present</div>
+                    <div class="attendance-stat-val" style="color:var(--color-success,#3B6D11);">@present</div>
+                </div>
+                <div class="attendance-stat">
+                    <div class="attendance-stat-label">Absent</div>
+                    <div class="attendance-stat-val" style="color:var(--color-danger,#A32D2D);">@absent</div>
+                </div>
+                <div class="attendance-stat">
+                    <div class="attendance-stat-label">Late</div>
+                    <div class="attendance-stat-val" style="color:var(--color-warning,#854F0B);">@late</div>
+                </div>
+            </div>
+
+            <form method="get" class="attendance-filter">
+                <input type="hidden" name="subjectId" value="@selectedSubjectId" />
+                <input class="form-control" style="flex:1;min-width:160px;max-width:220px;" type="text"
+                       name="search" placeholder="Search student..." value="@search" />
+                <select class="form-control" style="max-width:160px;" name="status">
+                    <option value="" selected="@(statusFilter == "")">All statuses</option>
+                    @foreach (var st in new[] { "Present", "Absent", "Late", "Excused" })
+                    {
+                        <option value="@st" selected="@(statusFilter == st)">@st</option>
+                    }
+                </select>
+                <input class="form-control" style="max-width:180px;" type="date"
+                       name="date" value="@dateFilter" />
+                <button class="btn btn-secondary" type="submit">Filter</button>
+                @if (!string.IsNullOrEmpty(search) || !string.IsNullOrEmpty(statusFilter) || !string.IsNullOrEmpty(dateFilter))
+                {
+                    <a class="btn btn-outline" href="@Url.Action("Index", "Attendance", new { subjectId = selectedSubjectId })">Clear</a>
+                }
+            </form>
+
+            <div class="panel" style="margin:0;border-radius:var(--border-radius-md, 8px);">
+                <div class="panel-body" style="padding:0;">
+                    @if (!Model.Any())
+                    {
+                        <div class="empty">
+                            <div class="ico">✓</div>
+                            No attendance records@(!string.IsNullOrEmpty(search) || !string.IsNullOrEmpty(statusFilter) || !string.IsNullOrEmpty(dateFilter) ? " matching your filters." : " for this subject.")
+                        </div>
+                    }
+                    else
+                    {
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Student</th>
+                                    <th>Status</th>
+                                    <th>Excuse Letter</th>
+                                    <th>Remarks</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var a in Model)
+                                {
+                                    var cls = a.Status switch
+                                    {
+                                        "Present" => "badge-green",
+                                        "Absent" => "badge-red",
+                                        "Late" => "badge-yellow",
+                                        _ => "badge-blue"
+                                    };
+                                    <tr>
+                                        <td>@a.AttendanceDate.ToString("MMM dd, yyyy")</td>
+                                        <td>
+                                            <div style="font-weight:500;">@a.Student?.FullName</div>
+                                            <div style="font-size:12px;color:var(--color-muted);">@a.Student?.StudentNumber</div>
+                                        </td>
+                                        <td><span class="badge @cls">@a.Status</span></td>
+                                        <td>
+                                            @if (a.Status == "Absent")
+                                            {
+                                                <span class="badge @(a.HasExcuseLetter ? "badge-blue" : "badge-gray")">
+                                                    @(a.HasExcuseLetter ? "With letter" : "No letter")
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span style="color:var(--color-muted);">-</span>
+                                            }
+                                        </td>
+                                        <td>@a.Remarks</td>
+                                        <td class="actions">
+                                            <a asp-action="Details" asp-route-id="@a.AttendanceId">View</a>
+                                            <a asp-action="Edit" asp-route-id="@a.AttendanceId">Edit</a>
+                                            <a asp-action="Delete" asp-route-id="@a.AttendanceId" style="color:var(--color-primary)">Delete</a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<style>
+.attendance-layout {
+    display: flex;
+    gap: 0;
+    min-height: 520px;
+    border: 0.5px solid var(--color-border, #e5e5e5);
+    border-radius: var(--border-radius-md, 8px);
+    overflow: hidden;
+    background: var(--color-surface, #fff);
+}
+.attendance-subjects {
+    width: 240px;
+    min-width: 240px;
+    border-right: 0.5px solid var(--color-border, #e5e5e5);
+    display: flex;
+    flex-direction: column;
+    background: var(--color-surface, #fff);
+}
+.attendance-subjects-head {
+    padding: 12px 16px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    border-bottom: 0.5px solid var(--color-border, #e5e5e5);
+}
+.attendance-subjects-list {
+    display: flex;
+    flex-direction: column;
+    padding: 8px;
+    gap: 2px;
+}
+.subject-item {
+    display: block;
+    padding: 10px 12px;
+    border-radius: var(--border-radius-md, 8px);
+    text-decoration: none;
+    border: 0.5px solid transparent;
+    transition: background .12s;
+}
+.subject-item:hover {
+    background: var(--color-hover, #f5f5f5);
+}
+.subject-item-active {
+    background: var(--color-info-bg, #E6F1FB);
+    border-color: var(--color-info-border, #B5D4F4);
+}
+.subject-item-code {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--color-muted);
+    margin-bottom: 1px;
+}
+.subject-item-code-active {
+    color: var(--color-info, #185FA5);
+}
+.subject-item-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--color-text, #111);
+}
+.subject-item-meta {
+    font-size: 11px;
+    color: var(--color-muted);
+    margin-top: 3px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+.subject-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    display: inline-block;
+    background: var(--color-muted);
+    flex-shrink: 0;
+}
+.subject-dot-active {
+    background: #185FA5;
+}
+.attendance-records {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    min-width: 0;
+}
+.attendance-empty {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    color: var(--color-muted);
+    font-size: 13px;
+    padding: 48px;
+}
+.attendance-empty-icon {
+    font-size: 32px;
+    opacity: .3;
+}
+.attendance-records-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 20px;
+    border-bottom: 0.5px solid var(--color-border, #e5e5e5);
+    background: var(--color-surface, #fff);
+}
+.attendance-records-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--color-text, #111);
+}
+.attendance-records-sub {
+    font-size: 12px;
+    color: var(--color-muted);
+    margin-top: 2px;
+}
+.attendance-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    padding: 14px 20px;
+    background: var(--color-bg, #f9f9f9);
+    border-bottom: 0.5px solid var(--color-border, #e5e5e5);
+}
+.attendance-stat {
+    background: var(--color-surface, #fff);
+    border: 0.5px solid var(--color-border, #e5e5e5);
+    border-radius: var(--border-radius-md, 8px);
+    padding: 10px 14px;
+}
+.attendance-stat-label {
+    font-size: 11px;
+    color: var(--color-muted);
+    margin-bottom: 4px;
+}
+.attendance-stat-val {
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--color-text, #111);
+}
+.attendance-filter {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    border-bottom: 0.5px solid var(--color-border, #e5e5e5);
+    background: var(--color-surface, #fff);
+    flex-wrap: wrap;
+}
+</style>

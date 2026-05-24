@@ -1,0 +1,39 @@
+@model IEnumerable<TeacherPortal.Models.StudentSubject>
+@{
+    ViewData["Title"] = "My Subjects";
+    var subjects = Model.ToList();
+}
+
+<div class="section-head">
+  <div>
+    <h2>My Subjects</h2>
+    <div class="sub">Subjects currently connected to your student account.</div>
+  </div>
+</div>
+
+<div class="sections-grid">
+  @if (!subjects.Any())
+  {
+    <div class="panel"><div class="empty">No subjects enrolled.</div></div>
+  }
+  else
+  {
+    @foreach (var subjectRow in subjects)
+    {
+      <article class="section-card">
+        <div class="section-card-top">
+          <div>
+            <h3>@subjectRow.Subject?.SubjectCode</h3>
+            <span>@subjectRow.Subject?.SubjectName</span>
+          </div>
+          <div class="section-count">S</div>
+        </div>
+        <p>@(string.IsNullOrWhiteSpace(subjectRow.Subject?.Description) ? "No description provided." : subjectRow.Subject.Description)</p>
+        <div class="section-card-foot">
+          <span>@(subjectRow.Section?.SectionName ?? "No section")</span>
+          <span>@(subjectRow.Subject?.Room ?? "No room assigned")</span>
+        </div>
+      </article>
+    }
+  }
+</div>

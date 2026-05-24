@@ -1,0 +1,9 @@
+@{ ViewData["Title"]="Student Performance"; var rows = (System.Collections.IEnumerable)ViewBag.Rows; }
+<div class="section-head"><div><h2>Student Performance</h2><div class="sub">Averages across subjects</div></div></div>
+<div class="panel"><div class="panel-body" style="padding:0;">
+<table class="table"><thead><tr><th>Student #</th><th>Name</th><th>Subjects</th><th>Average</th><th>Passed</th><th>Failed</th></tr></thead><tbody>
+@foreach(dynamic r in rows){
+<tr><td>@r.Student.StudentNumber</td><td>@r.Student.FullName</td><td>@r.Subjects</td>
+<td><strong>@(r.Average == null ? "—" : ((decimal)r.Average).ToString("0.00"))</strong></td>
+<td><span class="badge badge-green">@r.Passed</span></td><td><span class="badge badge-red">@r.Failed</span></td></tr>}
+</tbody></table></div></div>

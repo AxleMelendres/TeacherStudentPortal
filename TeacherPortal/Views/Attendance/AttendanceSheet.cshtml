@@ -1,0 +1,93 @@
+@model IEnumerable<TeacherPortal.Models.Student>
+@{
+    ViewData["Title"] = "Attendance Sheet";
+    var existing = (Dictionary<int, TeacherPortal.Models.Attendance>)ViewBag.Existing;
+    var statuses = (string[])ViewBag.Statuses;
+}
+
+<div class="section-head">
+  <div>
+    <h2>Attendance Sheet</h2>
+    <div class="sub">Records are saved separately for each selected date.</div>
+  </div>
+</div>
+
+<form method="get" class="panel" style="padding:14px 18px;margin-bottom:18px;display:flex;gap:10px;flex-wrap:wrap;">
+  <select name="subjectId" class="form-control" style="max-width:240px;" asp-items="ViewBag.Subjects"><option value="">Select subject</option></select>
+  <select name="sectionId" class="form-control" style="max-width:240px;" asp-items="ViewBag.Sections"><option value="">All sections</option></select>
+  <input type="date" name="date" class="form-control" style="max-width:200px;" value="@(((DateTime)ViewBag.Date).ToString("yyyy-MM-dd"))" />
+  <button class="btn btn-secondary">Load</button>
+</form>
+
+@if (ViewBag.SubjectId != null && (int)ViewBag.SubjectId > 0)
+{
+  <form asp-action="SaveSheet" method="post">
+    <input type="hidden" name="subjectId" value="@ViewBag.SubjectId" />
+    <input type="hidden" name="sectionId" value="@ViewBag.SectionId" />
+    <input type="hidden" name="date" value="@(((DateTime)ViewBag.Date).ToString("yyyy-MM-dd"))" />
+    <div class="panel">
+      <div class="panel-body" style="padding:0;">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Student</th>
+              <th>Status</th>
+              <th>Excuse Letter</th>
+              <th>Remarks</th>
+            </tr>
+          </thead>
+          <tbody>
+            @foreach (var s in Model)
+            {
+              var cur = existing.ContainsKey(s.StudentId) ? existing[s.StudentId].Status : "Present";
+              var hasLetter = existing.ContainsKey(s.StudentId) && existing[s.StudentId].HasExcuseLetter;
+              var rem = existing.ContainsKey(s.StudentId) ? existing[s.StudentId].Remarks : "";
+              var excuseStyle = cur == "Absent" ? "max-width:160px;" : "max-width:160px;display:none;";
+              <tr>
+                <td>@s.FullName <small style="color:var(--color-muted)">(@s.StudentNumber)</small></td>
+                <td>
+                  <select name="status[@s.StudentId]" class="form-control" style="max-width:160px;" data-sheet-status="@s.StudentId">
+                    @foreach (var st in statuses)
+                    {
+                      <option value="@st" selected="@(cur == st)">@st</option>
+                    }
+                  </select>
+                </td>
+                <td>
+                  <select name="hasExcuseLetter[@s.StudentId]" class="form-control" style="@excuseStyle" data-sheet-excuse="@s.StudentId">
+                    <option value="false" selected="@(!hasLetter)">No letter</option>
+                    <option value="true" selected="@(hasLetter)">With letter</option>
+                  </select>
+                </td>
+                <td><input class="form-control" name="remarks[@s.StudentId]" value="@rem" /></td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="form-actions" style="margin-top:18px;"><button class="btn btn-primary">Save Sheet</button></div>
+  </form>
+}
+else
+{
+  <div class="empty"><div class="ico">&#128203;</div>Select a subject and date to begin.</div>
+}
+
+<script>
+document.addEventListener("change", function (event) {
+  var status = event.target.closest("[data-sheet-status]");
+  if (!status) return;
+
+  var studentId = status.getAttribute("data-sheet-status");
+  var excuse = document.querySelector('[data-sheet-excuse="' + studentId + '"]');
+  if (!excuse) return;
+
+  if (status.value === "Absent") {
+    excuse.style.display = "";
+  } else {
+    excuse.value = "false";
+    excuse.style.display = "none";
+  }
+});
+</script>

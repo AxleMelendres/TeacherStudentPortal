@@ -1,0 +1,7 @@
+@model TeacherPortal.Models.Section
+@{ ViewData["Title"]="Delete Section"; }
+<div class="section-head"><h2>Delete @Model.SectionName?</h2></div>
+<div class="form-card"><p>This action cannot be undone.</p>
+<form asp-action="Delete" method="post"><input type="hidden" asp-for="SectionId"/>
+<div class="form-actions"><button class="btn btn-primary">Delete</button><a class="btn btn-outline" asp-action="Index">Cancel</a></div>
+</form></div>

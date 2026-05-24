@@ -1,0 +1,7 @@
+@model TeacherPortal.Models.Attendance
+@{ ViewData["Title"]="Delete Attendance"; }
+<div class="section-head"><h2>Delete this attendance record?</h2></div>
+<div class="form-card"><p>@Model.Student?.FullName — @Model.Subject?.SubjectCode on @Model.AttendanceDate.ToString("MMM dd, yyyy")</p>
+<form asp-action="Delete" method="post"><input type="hidden" asp-for="AttendanceId"/>
+<div class="form-actions"><button class="btn btn-primary">Delete</button><a class="btn btn-outline" asp-action="Index">Cancel</a></div>
+</form></div>
