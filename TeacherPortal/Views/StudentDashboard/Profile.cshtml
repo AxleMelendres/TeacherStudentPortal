@@ -13,7 +13,7 @@
   <aside class="student-profile-card">
     <div class="student-profile-avatar">@GetInitials(Model.FullName)</div>
     <h3>@Model.FullName</h3>
-    <p>@Model.StudentNumber</p>
+    <p>@Model.StudentNumber - @(Model.EnrollmentCode ?? "-")</p>
     <span class="badge @(Model.Section == null ? "badge-gray" : "badge-blue")">@(Model.Section?.SectionName ?? "Unassigned")</span>
   </aside>
 

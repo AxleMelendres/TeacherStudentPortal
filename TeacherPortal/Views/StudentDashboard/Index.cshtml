@@ -13,7 +13,7 @@
   <div>
     <span>Student Portal</span>
     <h2>Hello, @student.FullName</h2>
-    <p>Student # @student.StudentNumber - @(student.Section?.SectionName ?? "No section assigned")</p>
+    <p>Student # @student.StudentNumber - Enrollment Code: @(student.EnrollmentCode ?? "-") - @(student.Section?.SectionName ?? "No section assigned")</p>
   </div>
   <div class="student-dashboard-date">@DateTime.Now.ToString("dddd, MMM dd")</div>
 </section>
